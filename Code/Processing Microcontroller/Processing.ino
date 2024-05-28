@@ -1,13 +1,11 @@
 // Processing Microcontroller
 
-#define led 2
-#define trig 3
-#define echo 4
-#define buzzer 6
-#define ringAnswer 9
-#define motionSensor 10
-#define first_ir_pin 11
-#define second_ir_pin 12
+#define trig 2
+#define echo 3
+#define ringAnswer 4
+#define motionSensor 5
+#define first_ir_pin 6
+#define second_ir_pin 7
 
 int motionSensorValue = 0;
 bool lamp;
@@ -43,16 +41,12 @@ void setup()
 {
   Serial.begin(9600);
   Serial.setTimeout(5);
-  
   pinMode(trig , OUTPUT);
   pinMode(echo , INPUT);
-  pinMode(buzzer,OUTPUT);
   pinMode(ringAnswer , INPUT_PULLUP) ;
-  
   pinMode(motionSensor,INPUT);
   pinMode(first_ir_pin , INPUT);
   pinMode(second_ir_pin , INPUT);
-  pinMode(led,OUTPUT);
 }
 
 void loop() 
@@ -65,20 +59,17 @@ void loop()
   
   if(first_first == 1 && first_trig == 1 && second_trig == 1 && first_ir == 1 && second_ir == 1)        personEntry();
   if(second_first == 1 && first_trig == 1 && second_trig == 1 && first_ir == 1 && second_ir == 1)       personLeaving();
-  Serial.print("Count : ");
-  Serial.println(numberOfPeople);
   
   motionSensorValue = digitalRead(motionSensor);
   lamp = motionAndPeople();
-  Serial.print("Motion Sensor value : ");
-  Serial.println(motionSensorValue);
-  digitalWrite(led,lamp);
-
+  delay(20);
+  while(!(Serial.availableForWrite()));
+  Serial.write(lamp);
 
   distance = getDistance();
-  Serial.print("Distance : ");
-  Serial.println(distance);
-  digitalWrite(buzzer,buzzerState());
+  delay(20);
+  while(!(Serial.availableForWrite()));
+  Serial.write(buzzerState());
 }
 
   
@@ -179,21 +170,18 @@ int getDistance()
 
 void firstTriggered()
 {
-   Serial.println("First is triggered");
    first_trig = 1;
    if(second_first == 0)    first_first = 1;
 }
 
 void secondTriggered()
 {
- Serial.println("Second is triggered");
  second_trig = 1;
  if(first_first == 0)       second_first = 1;
 }
 
 void personEntry()
 {
-  Serial.println("Person Entered");
   numberOfPeople++;
   
   first_first = 0;
@@ -203,7 +191,6 @@ void personEntry()
 
 void personLeaving()
 {
-  Serial.println("Person Exited");
   numberOfPeople--;
   second_first = 0;
   first_trig = 0;
